@@ -1,0 +1,10 @@
+{
+  "name": "ustabul61-frontend",
+  "version": "0.1.0",
+  "description": "Multi-page frontend for Ustabul61",
+  "type": "commonjs",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  }
+}

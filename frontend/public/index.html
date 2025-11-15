@@ -1,0 +1,49 @@
+<!doctype html>
+<html lang="tr">
+<head>
+  <meta charset="utf-8" />
+  <title>Ustabul61 - Hizmet Platformu</title>
+  <link rel="stylesheet" href="/assets/css/main.css" />
+</head>
+<body>
+  <header>
+    <h1>Ustabul61</h1>
+    <nav>
+      <a href="/">Ana Sayfa</a>
+      <a href="/request.html">Hizmet Talebi</a>
+      <a href="/user-panel.html">Kullanıcı Paneli</a>
+      <a href="/pro-panel.html">Usta Paneli</a>
+      <a href="/admin.html">Admin</a>
+    </nav>
+  </header>
+  <div class="container">
+    <section>
+      <h2>Kategoriler</h2>
+      <div id="categories" class="card-grid"></div>
+    </section>
+    <section>
+      <h2>Son Duyurular</h2>
+      <ul id="announcements"></ul>
+    </section>
+  </div>
+  <script>
+    async function fetchData(endpoint, target, renderer) {
+      try {
+        const res = await fetch(endpoint);
+        const data = await res.json();
+        renderer(data, document.getElementById(target));
+      } catch (err) {
+        console.error('API error', err);
+      }
+    }
+
+    fetchData('http://localhost:4100/api/public/categories', 'categories', (data, el) => {
+      el.innerHTML = data.categories.map(cat => `<div class="card"><h3>${cat.name}</h3><p>${cat.description || ''}</p></div>`).join('');
+    });
+
+    fetchData('http://localhost:4100/api/public/announcements', 'announcements', (data, el) => {
+      el.innerHTML = data.announcements.map(a => `<li><strong>${a.title}</strong> - ${a.body}</li>`).join('');
+    });
+  </script>
+</body>
+</html>

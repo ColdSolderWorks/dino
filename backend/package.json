@@ -1,0 +1,12 @@
+{
+  "name": "ustabul61-backend",
+  "version": "0.1.0",
+  "description": "Self-hosted service marketplace API for Ustabul61",
+  "main": "src/server.js",
+  "type": "commonjs",
+  "scripts": {
+    "start": "node src/server.js",
+    "dev": "NODE_ENV=development node src/server.js"
+  },
+  "license": "MIT"
+}

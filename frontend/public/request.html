@@ -1,0 +1,75 @@
+<!doctype html>
+<html lang="tr">
+<head>
+  <meta charset="utf-8" />
+  <title>Yeni Hizmet Talebi - Ustabul61</title>
+  <link rel="stylesheet" href="/assets/css/main.css" />
+</head>
+<body>
+  <header>
+    <h1>Talep Oluştur</h1>
+    <nav>
+      <a href="/">Ana Sayfa</a>
+      <a href="/user-panel.html">Kullanıcı Paneli</a>
+    </nav>
+  </header>
+  <div class="container">
+    <form id="requestForm">
+      <label>Kategori
+        <select name="categoryId" id="categoryId"></select>
+      </label>
+      <label>Şehir
+        <input type="text" name="city" required />
+      </label>
+      <label>İlçe
+        <input type="text" name="district" required />
+      </label>
+      <label>Kısa Açıklama
+        <textarea name="description" required></textarea>
+      </label>
+      <label>Tahmini Tarih
+        <input type="date" name="desiredDate" />
+      </label>
+      <label>Bütçe (min-max)
+        <div style="display:flex; gap:1rem;">
+          <input type="number" name="budgetMin" placeholder="Min" />
+          <input type="number" name="budgetMax" placeholder="Max" />
+        </div>
+      </label>
+      <button type="submit">Talep Gönder</button>
+    </form>
+    <p class="hint">Bu form API'ye JSON gönderir. Tarayıcı konsolunda örnek isteği görebilirsiniz.</p>
+  </div>
+  <script>
+    const tokenKey = 'ustabul61_token';
+
+    async function loadCategories() {
+      const res = await fetch('http://localhost:4100/api/public/categories');
+      const data = await res.json();
+      document.getElementById('categoryId').innerHTML = data.categories.map(cat => `<option value="${cat.id}">${cat.name}</option>`).join('');
+    }
+
+    document.getElementById('requestForm').addEventListener('submit', async (event) => {
+      event.preventDefault();
+      const payload = Object.fromEntries(new FormData(event.target).entries());
+      const token = localStorage.getItem(tokenKey);
+      if (!token) {
+        alert('Talep oluşturmak için giriş yapmalısınız.');
+        return;
+      }
+      const res = await fetch('http://localhost:4100/api/requests', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify(payload)
+      });
+      const data = await res.json();
+      alert(res.ok ? 'Talep oluşturuldu' : data.error);
+    });
+
+    loadCategories();
+  </script>
+</body>
+</html>
