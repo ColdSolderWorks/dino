@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang="tr">
+<head>
+  <meta charset="utf-8" />
+  <title>Usta Profili - Ustabul61</title>
+  <link rel="stylesheet" href="/assets/css/main.css" />
+</head>
+<body>
+  <header>
+    <h1>Usta Profili</h1>
+    <nav>
+      <a href="/">Ana Sayfa</a>
+    </nav>
+  </header>
+  <div class="container">
+    <form id="profileForm">
+      <label>Usta ID
+        <input type="number" name="proId" required />
+      </label>
+      <button type="submit">Profili Getir</button>
+    </form>
+    <section id="profile"></section>
+  </div>
+  <script>
+    document.getElementById('profileForm').addEventListener('submit', async (event) => {
+      event.preventDefault();
+      const id = new FormData(event.target).get('proId');
+      const res = await fetch(`http://localhost:4100/api/providers/${id}/reviews`);
+      if (!res.ok) {
+        document.getElementById('profile').innerHTML = '<p>Usta bulunamadı.</p>';
+        return;
+      }
+      const data = await res.json();
+      const avg = data.reviews.length ? (data.reviews.reduce((s, r) => s + r.rating, 0) / data.reviews.length).toFixed(1) : '0.0';
+      document.getElementById('profile').innerHTML = `
+        <h3>Usta #${id}</h3>
+        <p>Ortalama Puan: ${avg}</p>
+        <div>${data.reviews.map(r => `<p>${r.rating}/5 - ${r.comment}</p>`).join('')}</div>
+      `;
+    });
+  </script>
+</body>
+</html>

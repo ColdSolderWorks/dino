@@ -1,0 +1,86 @@
+<!doctype html>
+<html lang="tr">
+<head>
+  <meta charset="utf-8" />
+  <title>Kullanıcı Paneli - Ustabul61</title>
+  <link rel="stylesheet" href="/assets/css/main.css" />
+</head>
+<body>
+  <header>
+    <h1>Kullanıcı Paneli</h1>
+    <nav>
+      <a href="/">Ana Sayfa</a>
+      <a href="/request.html">Talep Oluştur</a>
+    </nav>
+  </header>
+  <div class="container">
+    <section>
+      <h2>Taleplerim</h2>
+      <div id="requestList"></div>
+    </section>
+    <section>
+      <h2>Gelen Teklifler</h2>
+      <div id="offerList"></div>
+    </section>
+  </div>
+  <script>
+    const tokenKey = 'ustabul61_token';
+
+    async function authenticatedFetch(url) {
+      const token = localStorage.getItem(tokenKey);
+      if (!token) {
+        alert('Önce giriş yapın.');
+        throw new Error('auth required');
+      }
+      const res = await fetch(url, { headers: { 'Authorization': `Bearer ${token}` } });
+      if (!res.ok) {
+        const data = await res.json();
+        alert(data.error || 'Hata');
+        throw new Error('api error');
+      }
+      return res.json();
+    }
+
+    async function loadRequests() {
+      const data = await authenticatedFetch('http://localhost:4100/api/requests/mine');
+      document.getElementById('requestList').innerHTML = data.requests.map(req => `
+        <div class="card">
+          <strong>Talep #${req.id}</strong>
+          <p>${req.description}</p>
+          <p>Durum: ${req.status}</p>
+          <button onclick="loadOffers(${req.id})">Teklifleri Göster</button>
+        </div>`).join('');
+    }
+
+    async function loadOffers(requestId) {
+      const token = localStorage.getItem(tokenKey);
+      const res = await fetch(`http://localhost:4100/api/offers/request/${requestId}`, {
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+      const data = await res.json();
+      document.getElementById('offerList').innerHTML = data.offers.map(of => `
+        <div class="card">
+          <p>Usta ID: ${of.providerId}</p>
+          <p>Fiyat: ${of.amount}</p>
+          <p>${of.message}</p>
+          <button onclick="acceptOffer(${of.id})">Teklifi Kabul Et</button>
+        </div>`).join('');
+    }
+
+    async function acceptOffer(id) {
+      const token = localStorage.getItem(tokenKey);
+      const res = await fetch(`http://localhost:4100/api/offers/${id}/accept`, {
+        method: 'POST',
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+      const data = await res.json();
+      alert(res.ok ? 'Teklif kabul edildi' : data.error);
+      loadRequests();
+    }
+
+    loadRequests();
+    window.loadOffers = loadOffers;
+    window.acceptOffer = acceptOffer;
+  </script>
+</body>
+</html>

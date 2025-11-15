@@ -1,0 +1,97 @@
+<!doctype html>
+<html lang="tr">
+<head>
+  <meta charset="utf-8" />
+  <title>Usta Paneli - Ustabul61</title>
+  <link rel="stylesheet" href="/assets/css/main.css" />
+</head>
+<body>
+  <header>
+    <h1>Usta Paneli</h1>
+    <nav>
+      <a href="/">Ana Sayfa</a>
+      <a href="/pro-profile.html">Profil</a>
+    </nav>
+  </header>
+  <div class="container">
+    <section>
+      <h2>Yeni Talepler</h2>
+      <div id="available"></div>
+    </section>
+    <section>
+      <h2>Tekliflerim</h2>
+      <div id="myOffers"></div>
+    </section>
+  </div>
+  <script>
+    const tokenKey = 'ustabul61_token';
+
+    async function fetchWithAuth(url, options = {}) {
+      const token = localStorage.getItem(tokenKey);
+      if (!token) {
+        alert('Önce usta olarak giriş yapın.');
+        throw new Error('auth');
+      }
+      options.headers = Object.assign({}, options.headers, {
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': 'application/json'
+      });
+      const res = await fetch(url, options);
+      const data = await res.json();
+      if (!res.ok) {
+        alert(data.error || 'Hata');
+        throw new Error('api');
+      }
+      return data;
+    }
+
+    async function loadAvailable() {
+      const data = await fetchWithAuth('http://localhost:4100/api/requests/available');
+      document.getElementById('available').innerHTML = data.requests.map(req => `
+        <div class="card">
+          <h3>${req.description}</h3>
+          <p>Konum: ${req.city}/${req.district}</p>
+          <button onclick="showOfferForm(${req.id})">Teklif Ver</button>
+          <div id="offer-form-${req.id}"></div>
+        </div>`).join('');
+    }
+
+    function showOfferForm(id) {
+      document.getElementById(`offer-form-${id}`).innerHTML = `
+        <form onsubmit="submitOffer(event, ${id})">
+          <label>Fiyat<input type="number" name="amount" required /></label>
+          <label>Süre<input type="text" name="estimatedTime" /></label>
+          <label>Not<textarea name="message"></textarea></label>
+          <button type="submit">Gönder</button>
+        </form>`;
+    }
+
+    async function submitOffer(event, requestId) {
+      event.preventDefault();
+      const payload = Object.fromEntries(new FormData(event.target).entries());
+      payload.requestId = requestId;
+      await fetchWithAuth('http://localhost:4100/api/offers', {
+        method: 'POST',
+        body: JSON.stringify(payload)
+      });
+      alert('Teklif gönderildi');
+      loadMyOffers();
+    }
+
+    async function loadMyOffers() {
+      const data = await fetchWithAuth('http://localhost:4100/api/offers/mine');
+      document.getElementById('myOffers').innerHTML = data.offers.map(of => `
+        <div class="card">
+          <p>Talep #${of.requestId}</p>
+          <p>Tutar: ${of.amount}</p>
+          <p>Durum: ${of.status}</p>
+        </div>`).join('');
+    }
+
+    loadAvailable();
+    loadMyOffers();
+    window.showOfferForm = showOfferForm;
+    window.submitOffer = submitOffer;
+  </script>
+</body>
+</html>

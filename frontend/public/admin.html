@@ -1,0 +1,84 @@
+<!doctype html>
+<html lang="tr">
+<head>
+  <meta charset="utf-8" />
+  <title>Admin Paneli - Ustabul61</title>
+  <link rel="stylesheet" href="/assets/css/main.css" />
+</head>
+<body>
+  <header>
+    <h1>Admin Paneli</h1>
+    <nav>
+      <a href="/">Ana Sayfa</a>
+    </nav>
+  </header>
+  <div class="container">
+    <section>
+      <h2>İstatistikler</h2>
+      <pre id="stats"></pre>
+    </section>
+    <section>
+      <h2>Kullanıcılar</h2>
+      <div id="users"></div>
+    </section>
+    <section>
+      <h2>Duyuru Oluştur</h2>
+      <form id="announcementForm">
+        <label>Başlık<input type="text" name="title" required /></label>
+        <label>İçerik<textarea name="body"></textarea></label>
+        <button type="submit">Yayınla</button>
+      </form>
+    </section>
+  </div>
+  <script>
+    const tokenKey = 'ustabul61_admin';
+
+    async function fetchAdmin(endpoint, options = {}) {
+      const token = localStorage.getItem(tokenKey) || localStorage.getItem('ustabul61_token');
+      if (!token) {
+        alert('Admin token girilmemiş.');
+        throw new Error('auth');
+      }
+      options.headers = Object.assign({}, options.headers, {
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': 'application/json'
+      });
+      const res = await fetch(endpoint, options);
+      const data = await res.json();
+      if (!res.ok) {
+        alert(data.error || 'Hata');
+        throw new Error('api');
+      }
+      return data;
+    }
+
+    async function loadStats() {
+      const stats = await fetchAdmin('http://localhost:4100/api/admin/stats');
+      document.getElementById('stats').textContent = JSON.stringify(stats.stats, null, 2);
+    }
+
+    async function loadUsers() {
+      const data = await fetchAdmin('http://localhost:4100/api/admin/users');
+      document.getElementById('users').innerHTML = data.users.map(user => `
+        <div class="card">
+          <strong>${user.name} (${user.role})</strong>
+          <p>${user.email}</p>
+          <p>Durum: ${user.status}</p>
+        </div>`).join('');
+    }
+
+    document.getElementById('announcementForm').addEventListener('submit', async (event) => {
+      event.preventDefault();
+      const payload = Object.fromEntries(new FormData(event.target).entries());
+      await fetchAdmin('http://localhost:4100/api/admin/announcements', {
+        method: 'POST',
+        body: JSON.stringify(payload)
+      });
+      alert('Duyuru yayınlandı');
+    });
+
+    loadStats();
+    loadUsers();
+  </script>
+</body>
+</html>
