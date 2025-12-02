@@ -1,0 +1,62 @@
+<!doctype html>
+<html lang="tr">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Çakal Radyo</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <header>
+      <h1>Çakal Radyo Masaüstü</h1>
+      <p>Node.js API ile çalışan hafif Spotify benzeri oyuncu</p>
+    </header>
+
+    <section class="auth">
+      <div class="card">
+        <h2>Kaydol</h2>
+        <label>Kullanıcı adı <input id="register-username" /></label>
+        <label>Parola <input id="register-password" type="password" /></label>
+        <button id="register-btn">Kaydol</button>
+        <p class="hint">Şifreler sunucuda scrypt ile tuzlanmış olarak saklanır.</p>
+      </div>
+      <div class="card">
+        <h2>Giriş Yap</h2>
+        <label>Kullanıcı adı <input id="login-username" /></label>
+        <label>Parola <input id="login-password" type="password" /></label>
+        <button id="login-btn">Giriş</button>
+        <div id="session-info"></div>
+      </div>
+    </section>
+
+    <section class="player card">
+      <div class="controls">
+        <button id="prev">⏮</button>
+        <button id="play">▶️/⏸</button>
+        <button id="next">⏭</button>
+        <button id="shuffle">Shuffle</button>
+        <button id="repeat">Tekrar: Kapalı</button>
+      </div>
+      <div class="now-playing">
+        <strong>Çalan:</strong> <span id="now-title">—</span>
+      </div>
+      <audio id="audio" controls></audio>
+    </section>
+
+    <section class="layout">
+      <div class="card">
+        <h2>Parçalar</h2>
+        <div class="hint">Sunucudaki <code>music</code> klasörüne MP3/OGG dosyaları ekleyin.</div>
+        <ul id="track-list"></ul>
+      </div>
+      <div class="card">
+        <h2>Çalma Listeleri</h2>
+        <label>İsim <input id="playlist-name" /></label>
+        <button id="create-playlist">Liste Oluştur</button>
+        <ul id="playlist-list"></ul>
+      </div>
+    </section>
+
+    <script src="app.js"></script>
+  </body>
+</html>

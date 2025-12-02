@@ -1,0 +1,12 @@
+{
+  "name": "cakal-radio-server",
+  "version": "1.0.0",
+  "description": "Simple Node.js API server for Cakal Radyo desktop client",
+  "main": "src/server.js",
+  "type": "commonjs",
+  "scripts": {
+    "start": "node src/server.js"
+  },
+  "author": "",
+  "license": "MIT"
+}
