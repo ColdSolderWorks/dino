@@ -22,12 +22,17 @@ const els = {
   createPlaylist: document.getElementById('create-playlist'),
   playlistList: document.getElementById('playlist-list'),
   nowTitle: document.getElementById('now-title'),
+  artwork: document.getElementById('artwork'),
   audio: document.getElementById('audio'),
   prev: document.getElementById('prev'),
   play: document.getElementById('play'),
   next: document.getElementById('next'),
   shuffle: document.getElementById('shuffle'),
   repeat: document.getElementById('repeat'),
+  progressBar: document.getElementById('progress-bar'),
+  progressFill: document.getElementById('progress-fill'),
+  currentTime: document.getElementById('current-time'),
+  duration: document.getElementById('duration'),
 };
 
 function authHeaders() {
@@ -126,31 +131,37 @@ async function loadPlaylists() {
 
 function renderTracks() {
   els.trackList.innerHTML = '';
-  tracks.forEach((track) => {
-    const li = document.createElement('li');
-    li.innerHTML = `<span>${track.title}</span>`;
+  tracks.forEach((track, index) => {
+    const row = document.createElement('div');
+    row.className = 'track-row';
+
+    const meta = document.createElement('div');
+    meta.className = 'track-meta';
+    const sizeLabel = `${Math.max(track.size / 1024 / 1024, 0.01).toFixed(2)} MB`;
+    meta.innerHTML = `<strong>${index + 1}. ${track.title}</strong><span class="muted">${track.filename} • ${sizeLabel}</span>`;
+
     const actions = document.createElement('div');
     actions.className = 'track-actions';
 
     const playBtn = document.createElement('button');
-    playBtn.textContent = 'Oynat';
+    playBtn.textContent = '▶️ Oynat';
     playBtn.onclick = () => startPlayback(track.id, true);
 
     const queueBtn = document.createElement('button');
-    queueBtn.textContent = 'Kuyruğa';
+    queueBtn.textContent = '➕ Kuyruk';
     queueBtn.onclick = () => addToQueue(track.id);
 
     const selectBtn = document.createElement('button');
-    selectBtn.textContent = playlistSelection.has(track.id) ? 'Seçildi' : 'Listeye Ekle';
+    selectBtn.textContent = playlistSelection.has(track.id) ? '✓ Seçildi' : 'Listeye ekle';
     selectBtn.onclick = () => togglePlaylistSelection(track.id, selectBtn);
 
     const downloadBtn = document.createElement('button');
-    downloadBtn.textContent = 'İndir';
+    downloadBtn.textContent = '⬇️ İndir';
     downloadBtn.onclick = () => downloadTrack(track.id, track.filename);
 
     actions.append(playBtn, queueBtn, selectBtn, downloadBtn);
-    li.appendChild(actions);
-    els.trackList.appendChild(li);
+    row.append(meta, actions);
+    els.trackList.appendChild(row);
   });
 }
 
@@ -185,9 +196,12 @@ function startPlayback(trackId, replaceQueue = false) {
     const idx = queue.indexOf(trackId);
     currentIndex = idx >= 0 ? idx : queue.push(trackId) - 1;
   }
-  els.audio.src = `${API_BASE}/tracks/${encodeURIComponent(track.id)}/stream`;
-  els.audio.play();
+  const tokenParam = token ? `?token=${encodeURIComponent(token)}` : '';
+  els.audio.src = `${API_BASE}/tracks/${encodeURIComponent(track.id)}/stream${tokenParam}`;
   els.nowTitle.textContent = track.title;
+  els.artwork.textContent = '🎧';
+  els.audio.play();
+  updatePlayButton();
 }
 
 function nextTrack() {
@@ -224,14 +238,15 @@ function previousTrack() {
 
 function toggleShuffle() {
   shuffle = !shuffle;
-  els.shuffle.textContent = shuffle ? 'Shuffle: Açık' : 'Shuffle';
+  els.shuffle.textContent = shuffle ? '🔀 Shuffle: Açık' : '🔀 Shuffle';
 }
 
 function toggleRepeat() {
   if (repeat === 'off') repeat = 'all';
   else if (repeat === 'all') repeat = 'one';
   else repeat = 'off';
-  const label = repeat === 'off' ? 'Tekrar: Kapalı' : repeat === 'all' ? 'Tekrar: Liste' : 'Tekrar: Şarkı';
+  const label =
+    repeat === 'off' ? 'Tekrar: Kapalı' : repeat === 'all' ? 'Tekrar: Liste' : 'Tekrar: Şarkı';
   els.repeat.textContent = label;
 }
 
@@ -314,10 +329,40 @@ els.play.onclick = () => {
   } else {
     els.audio.pause();
   }
+  updatePlayButton();
 };
 els.shuffle.onclick = toggleShuffle;
 els.repeat.onclick = toggleRepeat;
 els.audio.addEventListener('ended', nextTrack);
+els.audio.addEventListener('timeupdate', () => {
+  const { currentTime, duration } = els.audio;
+  const percent = duration ? (currentTime / duration) * 100 : 0;
+  els.progressFill.style.width = `${percent}%`;
+  els.currentTime.textContent = formatTime(currentTime);
+  els.duration.textContent = formatTime(duration || 0);
+});
+els.audio.addEventListener('play', updatePlayButton);
+els.audio.addEventListener('pause', updatePlayButton);
+els.progressBar.addEventListener('click', (event) => {
+  const rect = els.progressBar.getBoundingClientRect();
+  const ratio = (event.clientX - rect.left) / rect.width;
+  if (!isNaN(els.audio.duration)) {
+    els.audio.currentTime = ratio * els.audio.duration;
+  }
+});
+
+function formatTime(value) {
+  if (!value || isNaN(value)) return '0:00';
+  const minutes = Math.floor(value / 60);
+  const seconds = Math.floor(value % 60)
+    .toString()
+    .padStart(2, '0');
+  return `${minutes}:${seconds}`;
+}
+
+function updatePlayButton() {
+  els.play.textContent = els.audio.paused ? '▶️ Oynat' : '⏸ Duraklat';
+}
 
 updateSessionInfo();
 if (token) {

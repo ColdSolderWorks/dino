@@ -152,9 +152,11 @@ async function handleLogin(req, res) {
   return sendJson(res, 200, { token, user: { id: user.id, username: user.username } });
 }
 
-function requireAuth(req, res) {
+function requireAuth(req, res, url) {
   const authHeader = req.headers['authorization'] || '';
-  const token = authHeader.startsWith('Bearer ') ? authHeader.slice(7) : null;
+  const tokenFromHeader = authHeader.startsWith('Bearer ') ? authHeader.slice(7) : null;
+  const tokenFromQuery = url ? url.searchParams.get('token') : null;
+  const token = tokenFromHeader || tokenFromQuery;
   const payload = verifyToken(token);
   if (!payload) {
     sendJson(res, 401, { message: 'Unauthorized' });
@@ -316,14 +318,14 @@ const server = http.createServer(async (req, res) => {
   }
 
   if (pathname === '/api/tracks') {
-    const user = requireAuth(req, res);
+    const user = requireAuth(req, res, url);
     if (!user) return undefined;
     if (req.method === 'GET') return handleTracks(req, res);
     return methodNotAllowed(res);
   }
 
   if (pathname.startsWith('/api/tracks/') && pathname.endsWith('/stream')) {
-    const user = requireAuth(req, res);
+    const user = requireAuth(req, res, url);
     if (!user) return undefined;
     const fileName = decodeURIComponent(pathname.replace('/api/tracks/', '').replace('/stream', ''));
     if (req.method === 'GET') return handleStream(req, res, fileName);
@@ -331,7 +333,7 @@ const server = http.createServer(async (req, res) => {
   }
 
   if (pathname.startsWith('/api/tracks/') && pathname.endsWith('/download')) {
-    const user = requireAuth(req, res);
+    const user = requireAuth(req, res, url);
     if (!user) return undefined;
     const fileName = decodeURIComponent(pathname.replace('/api/tracks/', '').replace('/download', ''));
     if (req.method === 'GET') return handleDownload(res, fileName);
@@ -339,7 +341,7 @@ const server = http.createServer(async (req, res) => {
   }
 
   if (pathname === '/api/playlists') {
-    const user = requireAuth(req, res);
+    const user = requireAuth(req, res, url);
     if (!user) return undefined;
     if (req.method === 'GET') return handlePlaylists(req, res, user);
     if (req.method === 'POST') return handleCreatePlaylist(req, res, user);
@@ -347,7 +349,7 @@ const server = http.createServer(async (req, res) => {
   }
 
   if (pathname.startsWith('/api/playlists/')) {
-    const user = requireAuth(req, res);
+    const user = requireAuth(req, res, url);
     if (!user) return undefined;
     const playlistId = pathname.replace('/api/playlists/', '');
     if (req.method === 'PUT') return handleUpdatePlaylist(req, res, user, playlistId);

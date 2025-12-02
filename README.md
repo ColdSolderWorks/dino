@@ -1,10 +1,10 @@
 # Çakal Radyo
 
-Basit bir Node.js API sunucusu ve tarayıcı tabanlı masaüstü arayüzüyle Çakal Radyo (Spotify benzeri) deneyimi.
+Basit bir Node.js API sunucusu ve parlak Spotify esintili masaüstü arayüzüyle Çakal Radyo deneyimi.
 
 ## Klasör yapısı
 - `server/`: Kimlik doğrulama, parça listesi, akış ve çalma listesi yönetimi sağlayan saf Node.js API'si.
-- `client/`: API'ye bağlanan hafif HTML/JS arayüzü. `node server.js` ile statik olarak sunulur.
+- `client/`: API'ye bağlanan şık HTML/JS arayüzü. `node server.js` ile statik olarak sunulur.
 
 ## Gereksinimler
 - Node.js 18+
@@ -26,6 +26,6 @@ Tarayıcıdan `http://localhost:3001` adresine gidin. Masaüstü kullanımı iç
 ## Akış ve özellikler
 - Kullanıcı kayıt/giriş (scrypt ile tuzlu hash, token tabanlı oturum).
 - Parça listesi: `music` klasöründeki tüm dosyaları otomatik listeler.
-- Akış: `/api/tracks/:id/stream` ile range destekli yayım, `/api/tracks/:id/download` ile çevrimdışı indirme.
+- Akış: `/api/tracks/:id/stream` ile range destekli yayım (token query desteği sayesinde `<audio>` etiketi çalışır), `/api/tracks/:id/download` ile çevrimdışı indirme.
 - Kuyruk/oynatıcı: Oynat, duraklat, önceki/sonraki, shuffle ve tekrar modları.
 - Çalma listesi: Oluşturma, silme, seçili parçalardan liste oluşturma ve listeyi oynatma.

@@ -4,58 +4,151 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Çakal Radyo</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap"
+      rel="stylesheet"
+    />
     <link rel="stylesheet" href="styles.css" />
   </head>
   <body>
-    <header>
-      <h1>Çakal Radyo Masaüstü</h1>
-      <p>Node.js API ile çalışan hafif Spotify benzeri oyuncu</p>
-    </header>
+    <div class="bg-gradient"></div>
+    <div class="grid-overlay"></div>
+    <div class="app-shell">
+      <aside class="sidebar">
+        <div class="brand">
+          <div class="logo">CR</div>
+          <div>
+            <p class="eyebrow">Çakal Radyo</p>
+            <h1>Spotify esintili masaüstü</h1>
+          </div>
+        </div>
+        <ul class="pill-list">
+          <li>Gerçek dosyalardan yüksek kaliteli akış</li>
+          <li>Shuffle / tekrar / sıra yönetimi</li>
+          <li>Çalma listesi oluştur & oynat</li>
+          <li>Çevrimdışı indirme</li>
+        </ul>
+        <div class="session" id="session-info">Oturum yok</div>
+      </aside>
 
-    <section class="auth">
-      <div class="card">
-        <h2>Kaydol</h2>
-        <label>Kullanıcı adı <input id="register-username" /></label>
-        <label>Parola <input id="register-password" type="password" /></label>
-        <button id="register-btn">Kaydol</button>
-        <p class="hint">Şifreler sunucuda scrypt ile tuzlanmış olarak saklanır.</p>
-      </div>
-      <div class="card">
-        <h2>Giriş Yap</h2>
-        <label>Kullanıcı adı <input id="login-username" /></label>
-        <label>Parola <input id="login-password" type="password" /></label>
-        <button id="login-btn">Giriş</button>
-        <div id="session-info"></div>
-      </div>
-    </section>
+      <main class="content">
+        <section class="panel hero">
+          <div>
+            <p class="eyebrow">Müzik sunucuna bağlan</p>
+            <h2>Çakal Radyo ile koleksiyonunu serbest bırak</h2>
+            <p class="muted">
+              Node.js API'ye bağlanan parlak bir masaüstü kabuğu. Kendi müzik
+              klasörünü tarar, Spotify benzeri görünümle parçalarını çalar.
+            </p>
+            <div class="badges">
+              <span class="badge">Gerçek zamanlı akış</span>
+              <span class="badge">Sürükleyici koyu tema</span>
+              <span class="badge">Kuyruk & keşif</span>
+            </div>
+          </div>
+          <div class="stats">
+            <div class="stat-card">
+              <p class="eyebrow">Oynatma</p>
+              <strong>Shuffle / Tekrar</strong>
+              <small class="muted">Tek tıklamayla ruh halini değiştir.</small>
+            </div>
+            <div class="stat-card">
+              <p class="eyebrow">Çalma listesi</p>
+              <strong>Anında koleksiyon</strong>
+              <small class="muted">Seç, kaydet ve paylaş.</small>
+            </div>
+            <div class="stat-card">
+              <p class="eyebrow">İndir</p>
+              <strong>Çevrimdışı hazır</strong>
+              <small class="muted">Dilediğin yerde dinle.</small>
+            </div>
+          </div>
+        </section>
 
-    <section class="player card">
-      <div class="controls">
-        <button id="prev">⏮</button>
-        <button id="play">▶️/⏸</button>
-        <button id="next">⏭</button>
-        <button id="shuffle">Shuffle</button>
-        <button id="repeat">Tekrar: Kapalı</button>
-      </div>
-      <div class="now-playing">
-        <strong>Çalan:</strong> <span id="now-title">—</span>
-      </div>
-      <audio id="audio" controls></audio>
-    </section>
+        <section class="panel auth-grid">
+          <div class="card glass">
+            <div class="card-head">
+              <h3>Kaydol</h3>
+              <p class="muted">Yeni bir Çakal Radyo profili oluştur.</p>
+            </div>
+            <label class="field">Kullanıcı adı <input id="register-username" /></label>
+            <label class="field">Parola <input id="register-password" type="password" /></label>
+            <button id="register-btn" class="cta">Kaydol</button>
+            <p class="hint">Şifreler scrypt ile tuzlanmış olarak saklanır.</p>
+          </div>
+          <div class="card glass">
+            <div class="card-head">
+              <h3>Giriş Yap</h3>
+              <p class="muted">Hazırsan oturum aç ve müziği başlat.</p>
+            </div>
+            <label class="field">Kullanıcı adı <input id="login-username" /></label>
+            <label class="field">Parola <input id="login-password" type="password" /></label>
+            <button id="login-btn" class="cta">Giriş</button>
+            <div class="hint">Sunucuya bağlandığında üst kısımda oturum görünür.</div>
+          </div>
+          <div class="card glass player-card">
+            <div class="card-head">
+              <h3>Şu an çalıyor</h3>
+              <p class="muted">Kuyruk, shuffle ve tekrar kontrolleri.</p>
+            </div>
+            <div class="now-playing">
+              <div class="artwork" id="artwork">🎵</div>
+              <div>
+                <p class="eyebrow muted">Çalan</p>
+                <h4 id="now-title">Henüz seçim yapılmadı</h4>
+              </div>
+            </div>
+            <div class="progress" id="progress-bar">
+              <div class="progress-fill" id="progress-fill"></div>
+            </div>
+            <div class="timecodes">
+              <span id="current-time">0:00</span>
+              <span id="duration">0:00</span>
+            </div>
+            <div class="controls">
+              <button id="shuffle">🔀 Shuffle</button>
+              <button id="prev">⏮ Önceki</button>
+              <button id="play">▶️ / ⏸</button>
+              <button id="next">⏭ Sonraki</button>
+              <button id="repeat">Tekrar: Kapalı</button>
+            </div>
+            <audio id="audio" crossorigin="anonymous"></audio>
+          </div>
+        </section>
 
-    <section class="layout">
-      <div class="card">
-        <h2>Parçalar</h2>
-        <div class="hint">Sunucudaki <code>music</code> klasörüne MP3/OGG dosyaları ekleyin.</div>
-        <ul id="track-list"></ul>
-      </div>
-      <div class="card">
-        <h2>Çalma Listeleri</h2>
-        <label>İsim <input id="playlist-name" /></label>
-        <button id="create-playlist">Liste Oluştur</button>
-        <ul id="playlist-list"></ul>
-      </div>
-    </section>
+        <section class="panel library">
+          <div class="card glass">
+            <div class="card-head">
+              <div>
+                <p class="eyebrow">Parçalar</p>
+                <h3>Sunucu kitaplığı</h3>
+                <p class="muted">`server/music` klasöründeki MP3/OGG dosyalarını otomatik listeler.</p>
+              </div>
+              <div class="pill muted">Dosyaları sunucuya ekle ve yenile.</div>
+            </div>
+            <div class="track-list" id="track-list"></div>
+          </div>
+
+          <div class="card glass">
+            <div class="card-head">
+              <div>
+                <p class="eyebrow">Çalma Listeleri</p>
+                <h3>Listelerini şekillendir</h3>
+                <p class="muted">Parçaları seç, ad ver ve kaydet.</p>
+              </div>
+              <div class="pill success">Sürüklemeden hızlı ekleme</div>
+            </div>
+            <div class="playlist-form">
+              <label class="field">İsim <input id="playlist-name" placeholder="Örn. Sabah Modu" /></label>
+              <button id="create-playlist" class="cta">Liste Oluştur</button>
+            </div>
+            <ul class="playlist-list" id="playlist-list"></ul>
+          </div>
+        </section>
+      </main>
+    </div>
 
     <script src="app.js"></script>
   </body>
