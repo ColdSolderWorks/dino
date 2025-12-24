@@ -1,0 +1,12 @@
+{
+  "name": "cakal-radio-client",
+  "version": "1.0.0",
+  "description": "Lightweight desktop-friendly client for Cakal Radyo",
+  "main": "server.js",
+  "type": "commonjs",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "author": "",
+  "license": "MIT"
+}
