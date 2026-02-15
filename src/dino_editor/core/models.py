@@ -11,6 +11,7 @@ class Clip:
     path: str
     in_point: float = 0.0
     out_point: float | None = None
+    timeline_start: float = 0.0
 
 
 @dataclass(slots=True)

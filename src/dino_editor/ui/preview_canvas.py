@@ -3,6 +3,8 @@ from __future__ import annotations
 import tkinter as tk
 from typing import Callable
 
+from PIL import Image, ImageTk
+
 
 class PreviewCanvas(tk.Canvas):
     def __init__(self, master: tk.Misc, on_rect_selected: Callable[[tuple[float, float, float, float]], None]) -> None:
@@ -11,12 +13,23 @@ class PreviewCanvas(tk.Canvas):
         self._start_x = 0.0
         self._start_y = 0.0
         self._rect_id: int | None = None
+        self._image_id: int | None = None
+        self._photo: ImageTk.PhotoImage | None = None
 
         self.bind("<ButtonPress-1>", self._on_press)
         self.bind("<B1-Motion>", self._on_drag)
         self.bind("<ButtonRelease-1>", self._on_release)
 
-        self.create_text(320, 180, text="Preview Area\n(Click and drag to select zoom region)", fill="#bbbbbb")
+        self.create_text(320, 180, text="Preview Area\n(Import a clip then press Play)", fill="#bbbbbb", tags="placeholder")
+
+    def show_frame(self, image_path: str) -> None:
+        image = Image.open(image_path)
+        self._photo = ImageTk.PhotoImage(image)
+        self.delete("placeholder")
+        if self._image_id is None:
+            self._image_id = self.create_image(0, 0, anchor="nw", image=self._photo)
+        else:
+            self.itemconfigure(self._image_id, image=self._photo)
 
     def _on_press(self, event: tk.Event) -> None:
         self._start_x = event.x

@@ -2,17 +2,20 @@
 
 Windows-first video editor prototype built with **Python + CustomTkinter + FFmpeg**.
 
-This is the first implementation pass and includes:
+Current prototype includes:
 
-- Project skeleton for the editor app.
-- Hardware-aware codec policy (**NVIDIA > AMD > Intel QuickSync > CPU**).
-- UI foundation for:
-  - importing clips,
-  - preview area,
-  - rectangle selection for zoom region,
-  - instant/timed zoom events,
-  - project save/load (`.dino` JSON format).
-- Unit tests for hardware encoder selection policy and project save/load round-trip.
+- Drag & drop video import (with fallback to file picker).
+- Real frame preview with play/pause and seek step controls.
+- Playback quality modes: full / half / quarter.
+- Timeline clip list with:
+  - move up/down,
+  - trim in/out,
+  - split at playhead.
+- Rectangle-based zoom region selection and timed/instant zoom events.
+- Project save/load (`.dino` JSON format).
+- Export button with hardware-aware encoder policy:
+  - **NVIDIA > AMD > Intel QuickSync > CPU**
+- Export cancel support and log output.
 
 ## Quick start
 
@@ -29,6 +32,6 @@ python -m dino_editor.app
 pytest
 ```
 
-## Current status
+## Notes
 
-This is a **foundation milestone** (not full NLE yet). Next milestones will add real playback pipeline, timeline editing logic, proxy generation, effects/transitions engine, and export queue.
+This is still a prototype: preview rendering is frame-based and intentionally simple to provide a working end-to-end flow before deeper optimization.
